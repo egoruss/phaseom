@@ -8,6 +8,7 @@ from datetime import datetime, date, time
 from time import *
 from types import *
 import sip
+import logging
 
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
@@ -22,12 +23,14 @@ class Logger(object):
     def __init__(self, output, lCursor):
         self.output = output
         self.lC = lCursor
+        logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.DEBUG, filename = u'PhaseOM.log')
 
     def write(self, string):
         if not (string == "\n"):
             trstring = QtGui.QApplication.translate("MainWindow", string.replace("\n", '').decode('cp1251').strip(),
                                                     None, QtGui.QApplication.UnicodeUTF8)
             self.output.append(trstring)
+            logging.info( trstring )
             self.output.moveCursor(self.lC.End, mode=self.lC.MoveAnchor)
 
 
@@ -38,7 +41,14 @@ class myQThread(QtCore.QThread):
 
     def run(self):
         pass
-        # import RowsRatioD
+        t0 = time()
+        print ("Start : (Вычисление итогов): %s" % ctime(t0))
+
+        import MainPhaseOM
+
+        t01 = time()
+        t1 = time() - t0
+        print ("Finis : Прошло от начала (Вычисление итогов): %.2f сек." % (t1))
 
 
 class ProgressBar(QtGui.QWidget):

@@ -1,4 +1,17 @@
-# -*- coding: utf-8 -*-
+# !python.exe
+# coding: cp1251
+''' -*- coding: utf-8 -*- '''
+
+from __future__ import with_statement
+import os
+from datetime import datetime, date, time
+from time import *
+from types import *
+import sip
+
+sip.setapi('QVariant', 2)
+from PyQt4 import QtCore, QtGui
+
 from pandas import read_csv, read_excel, DataFrame
 from sklearn import preprocessing
 from sklearn import metrics
@@ -12,11 +25,14 @@ from sklearn.metrics import r2_score
 from sklearn.feature_selection import RFE
 from sklearn.cross_validation import train_test_split
 
+def ToPrintLog (sMess):
+    print str(datetime.now().strftime("%d.%m.%Y %H:%M:%S ")) + str(sMess)
+
 dataset = read_excel("EnergyEfficiency\ENB2012_data.xls", sheet_name='Data1', index_col=None, na_values=['NA'])
 #dataset.head()
-print "РљРѕР»РёС‡РµСЃС‚РІРѕ РЅР°Р±Р»СЋРґРµРЅРёР№ : ", dataset.Y1.count()
-print(dataset.head())
-# РЎРїРёСЃРѕРє РёРјС‘РЅ РїСЂРёР·РЅР°РєРѕРІ
+ToPrintLog ("Количество наблюдений : " + str(dataset.Y1.count()))
+print dataset.head()
+# Список имён признаков
 ListPRZ = dataset.columns._array_values()
 
 # normalize the data attributes
@@ -39,20 +55,20 @@ normalized_Y2 = preprocessing.normalize(Y2)
 standardized_X = preprocessing.scale(dataset[ListPRZ])
 
 mcorr = dataset.corr()
-print u"-=:: РњР°С‚СЂРёС†Р° РєРѕСЂСЂРµР»СЏС†РёР№ ::=-"
+print "-=:: Матрица корреляций ::=-"
 print mcorr
-mcorr.to_excel("EnergyEfficiency\ENB2012_corr.xls", sheet_name=u'РљРѕСЂСЂРµР»СЏС†РёРё')
+mcorr.to_excel("EnergyEfficiency\ENB2012_corr.xls", sheet_name=u'Корреляции')
 
 model = ExtraTreesClassifier()
 # model.fit(normalized_X, Y1)
 model.fit(X,Y1Y2)
 
-# РџРѕРєР°Р·Р°С‚СЊ СЃС‚РµРїРµРЅРё СЃСѓС‰РµСЃС‚РІРµРЅРЅРѕСЃС‚Рё РєР°Р¶РґРѕРіРѕ РїСЂРёР·РЅР°РєР°-РїСЂРµРґРёРєС‚РѕСЂР°
+# Показать степени существенности каждого признака-предиктора
 
-print u"-=:: РЎСѓС‰РµСЃС‚РІРµРЅРЅРѕСЃС‚СЊ РїСЂРёР·РЅР°РєРѕРІ ::=-"
+print "-=:: Существенность признаков ::=-"
 print(model.feature_importances_)
 
-# РЈРґР°Р»РµРЅРёРµ СЃС‚РѕР»Р±С†РѕРІ СЃ РјРёРЅРёРјР°Р»СЊРЅС‹РјРё РєРѕСЂСЂРµР»СЏС†РёСЏРјРё СЃ С†РµР»РµРІС‹РјРё С„Р°РєС‚РѕСЂР°РјРё
+# Удаление столбцов с минимальными корреляциями с целевыми факторами
 modeli         = LogisticRegression()
 # create the RFE model and select 3 attributes
 rfe = RFE(model, 3)
@@ -66,4 +82,4 @@ print(rfe.ranking_)
 # dataset = dataset.drop(['X1','X4'], axis=1)
 # print dataset.head()
 
-print (u"          -= :: END - РљРћРќР•Р¦ :: =-")
+print ("          -= :: END - КОНЕЦ :: =-")
